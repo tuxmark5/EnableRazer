@@ -1,0 +1,13 @@
+name:           EnableRazer 
+version:        0.0.1
+cabal-version:  -any
+build-type:     Simple
+license:        AllRightsReserved
+build-depends:  base -any, bytestring -any, usb -any
+description:    .
+author:         Audrius Šaikūnas
+executable:     EnableRazer
+main-is:        Main.hs
+buildable:      True
+hs-source-dirs: src
+ghc-options:    -threaded
