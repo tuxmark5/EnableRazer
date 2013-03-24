@@ -35,18 +35,18 @@ cdata = BS.pack
  , 0x06, 0x00
  ]
 
-deviceFilter :: Word16 -> Word16 -> Device -> IO Bool
-deviceFilter venId prodId dev = do
+deviceFilter :: Word16 -> [Word16] -> Device -> IO Bool
+deviceFilter venId prodIds dev = do
   devDesc <- getDeviceDesc dev
   return  $ deviceVendorId  devDesc == venId
-         && deviceProductId devDesc == prodId
+         && any ((==) $ deviceProductId devDesc) prodIds
   
-withDevice :: Word16 -> Word16 -> (Device -> IO a) -> IO ()
-withDevice venId prodId hnd = do
+withDevice :: Word16 -> [Word16] -> (Device -> IO a) -> IO ()
+withDevice venId prodIds hnd = do
   ctx   <- newCtx
   setDebug ctx PrintInfo
   devs  <- getDevices ctx
-  devs1 <- V.filterM (deviceFilter venId prodId) devs
+  devs1 <- V.filterM (deviceFilter venId prodIds) devs
   if V.null devs1 
     then return $ error "Device not found"
     else V.mapM_ hnd devs1
@@ -65,8 +65,7 @@ enableRazer devHndl = do
   
 main :: IO ()
 main = do
-  threadDelay 3000000
-  withDevice 0x1532 0x010d $ \dev -> do
+  withDevice 0x1532 [0x010d, 0x010e] $ \dev -> do
   withDeviceHandle dev $ \devHndl ->
     withDetachedKernelDriver devHndl 2 $
     withClaimedInterface devHndl 2 $ do
