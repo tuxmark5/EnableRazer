@@ -1,9 +1,11 @@
-import Control.Exception
-import qualified Data.ByteString as BS (ByteString, empty, length, pack, unpack)
-import Data.List (find)
-import Data.Word (Word16)
-import System.IO
-import System.USB
+import            Control.Concurrent
+import            Control.Exception
+import qualified  Data.ByteString as BS (ByteString, empty, length, pack, unpack)
+import            Data.List (find)
+import qualified  Data.Vector as V
+import            Data.Word (Word16)
+import            System.IO
+import            System.USB
 
 _SET_REPORT = 0x09
 
@@ -33,20 +35,21 @@ cdata = BS.pack
  , 0x06, 0x00
  ]
 
-deviceFilter :: Word16 -> Word16 -> Device -> Bool
-deviceFilter venId prodId dev
-  =  deviceVendorId  devDesc == venId
-  && deviceProductId devDesc == prodId
-  where devDesc = deviceDesc dev
+deviceFilter :: Word16 -> Word16 -> Device -> IO Bool
+deviceFilter venId prodId dev = do
+  devDesc <- getDeviceDesc dev
+  return  $ deviceVendorId  devDesc == venId
+         && deviceProductId devDesc == prodId
   
-withDevice :: Word16 -> Word16 -> (Device -> IO a) -> IO a
+withDevice :: Word16 -> Word16 -> (Device -> IO a) -> IO ()
 withDevice venId prodId hnd = do
   ctx   <- newCtx
   setDebug ctx PrintInfo
   devs  <- getDevices ctx
-  case find (deviceFilter venId prodId) devs of
-    Nothing   -> return $ error "Device not found"
-    Just dev  -> hnd dev
+  devs1 <- V.filterM (deviceFilter venId prodId) devs
+  if V.null devs1 
+    then return $ error "Device not found"
+    else V.mapM_ hnd devs1
    
 enableRazer :: DeviceHandle -> IO ()
 enableRazer devHndl = do
@@ -61,7 +64,9 @@ enableRazer devHndl = do
     noTimeout
   
 main :: IO ()
-main = withDevice 0x1532 0x010d $ \dev -> do
+main = do
+  threadDelay 3000000
+  withDevice 0x1532 0x010d $ \dev -> do
   withDeviceHandle dev $ \devHndl ->
     withDetachedKernelDriver devHndl 2 $
     withClaimedInterface devHndl 2 $ do
@@ -69,4 +74,3 @@ main = withDevice 0x1532 0x010d $ \dev -> do
       case res of
         Left (SomeException a)  -> putStrLn $ show a
         Right a                 -> putStrLn "OK"
-

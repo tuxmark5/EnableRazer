@@ -3,7 +3,7 @@ version:        0.0.1
 cabal-version:  -any
 build-type:     Simple
 license:        AllRightsReserved
-build-depends:  base -any, bytestring -any, usb -any
+build-depends:  base -any, bytestring -any, vector -any, usb -any
 description:    .
 author:         Audrius Šaikūnas
 executable:     EnableRazer
