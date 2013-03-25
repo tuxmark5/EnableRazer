@@ -1,12 +1,11 @@
 import            Control.Concurrent
 import            Control.Exception
-import qualified  Data.ByteString as BS (ByteString, empty, length, pack, unpack)
-import            Data.List (find)
+import qualified  Data.ByteString as BS (ByteString, pack)
 import qualified  Data.Vector as V
 import            Data.Word (Word16)
-import            System.IO
 import            System.USB
 
+_SET_REPORT :: Request
 _SET_REPORT = 0x09
 
 {-
@@ -72,4 +71,4 @@ main = do
       res <- try $ enableRazer devHndl
       case res of
         Left (SomeException a)  -> putStrLn $ show a
-        Right a                 -> putStrLn "OK"
+        Right _                 -> putStrLn "OK"
