@@ -1,5 +1,5 @@
 name:           EnableRazer 
-version:        0.0.3
+version:        0.0.4
 cabal-version:  -any
 build-type:     Simple
 license:        AllRightsReserved

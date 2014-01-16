@@ -1,0 +1,85 @@
+EnableRazer 0.0.4
+
+
+Overview
+**********
+Utility built on Haskell to enable the capture of extended keys from Razer
+BlackWidow Stealth Ultimate and Anansi keyboards.  Once they can be captured,
+they can then be handled by whatever hardware event management interface used.
+
+
+Technical
+**********
+This utility sends an initialization signal to Razer keyboard devices which
+allows them to generate keycodes which can then be processed in the same way as
+any other keyboard device.  Note that the keycodes generated may need to be
+remapped to perform a desired function.
+
+
+License
+**********
+Please see the file LICENSE which should be included with this distribution.
+
+
+Requirements
+**********
+This utility has build-time dependencies on:
+ - The Glasgow Haskell Compiler (ghc)
+ - Haskell USB package
+ - libusb-1.0
+
+There is also a runtime dependency on:
+ - libusb-1.0
+
+
+Checking Hardware
+**********
+Before building this utility, it is advisable to check that your hardware
+device ID is included.  To obtain the hardware ID of your device on Linux,
+use the following command :
+
+lsusb -d 1532:
+
+This will display the hardware ID of all Razer devices connected to the USB bus
+in the format
+
+Bus nnn Device nnn: ID 1532:dddd Razer USA, Ltd
+
+The ID, "1532:dddd" is what is used to identify your device, where 'dddd' is
+the product identifier (required below).
+
+Currently included hardware ID's are 010d, 010e and 010f.  If your device ID is
+not in that list, then you need to modify 'EnableRazer/src/Main.hs' at line 67
+and add your device ID in the format "0xdddd" (as per the other ID's listed
+there).  Note that EnableRazer will send the initialization signal any device
+with a matching ID, so if you have other devices with an ID in that list that
+you do not want an initialization signal sent to, you must remove that ID.
+
+
+Installation
+**********
+On most linux distributions, this package can be installed using the following
+method:
+ - Install the 'ghc', 'cabal-install' and 'libusb' packages using your package
+   manager of choice
+ - cabal update
+ - cabal install usb
+ - cd EnableRazer/
+ - cabal configure
+ - cabal build
+
+Once built, copy the binary 'EnableRazer/dist/build/EnableRazer/EnableRazer'
+to a location in your $PATH (eg. '/sbin/EnableRazer').
+
+
+Usage
+**********
+There are no usage options.  Simply run the EnableRazer binary and it will send
+the initialization signal to devices with the listed ID's.  If successful, the
+output
+
+WRITING SET_REPORT
+OK
+
+should be displayed.  If it is not, then the device was likely not initialized
+and you may need to investigate the "Checking Hardware" section above.
