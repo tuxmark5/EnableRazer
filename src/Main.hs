@@ -64,7 +64,7 @@ enableRazer devHndl = do
   
 main :: IO ()
 main = do
-  withDevice 0x1532 [0x010d, 0x010e] $ \dev -> do
+  withDevice 0x1532 [0x010d, 0x010e, 0x010f] $ \dev -> do
   withDeviceHandle dev $ \devHndl ->
     withDetachedKernelDriver devHndl 2 $
     withClaimedInterface devHndl 2 $ do
